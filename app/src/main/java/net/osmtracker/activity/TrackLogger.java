@@ -51,12 +51,15 @@ import net.osmtracker.service.gps.GPSLoggerServiceConnection;
 import net.osmtracker.util.CustomLayoutsUtils;
 import net.osmtracker.util.FileSystemUtils;
 import net.osmtracker.util.ThemeValidator;
+import net.osmtracker.view.NumberNoteDialog;
+import net.osmtracker.view.SpinnerNoteDialog;
 import net.osmtracker.view.TextNoteDialog;
 import net.osmtracker.view.VoiceRecDialog;
 
 import java.io.File;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -155,7 +158,8 @@ public class TrackLogger extends Activity {
 	 * constant for voice recording dialog
 	 */
 	public static final int DIALOG_VOICE_RECORDING = 2;
-	
+	public static final int DIALOG_NUMBER_INPUT = 3;
+	public static final int DIALOG_SPINNER_INPUT = 4;
 	/**
 	 * sensor listener for the azimuth display
 	 */
@@ -170,6 +174,7 @@ public class TrackLogger extends Activity {
 
 	private ComponentName mediaButtonReceiver;
 
+	private List<String> tempSpinnerOptions;
 
 	/*
 	 *  Avoid taking care of duplicated elements
@@ -694,6 +699,10 @@ public class TrackLogger extends Activity {
 		case DIALOG_TEXT_NOTE:
 			// create a new TextNoteDialog
 			return new TextNoteDialog(this, currentTrackId);
+		case DIALOG_NUMBER_INPUT:
+			return new NumberNoteDialog(this, currentTrackId);
+		case DIALOG_SPINNER_INPUT:
+			return new SpinnerNoteDialog(this, currentTrackId);
 		case DIALOG_VOICE_RECORDING:
 			if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
 					!= PackageManager.PERMISSION_GRANTED) {
@@ -728,12 +737,21 @@ public class TrackLogger extends Activity {
 
 	@Override
 	protected void onPrepareDialog(int id, Dialog dialog) {
-		switch(id){
-		case DIALOG_TEXT_NOTE:
-			// we need to reset Values like uuid of the dialog,
-			// otherwise we would overwrite an existing waypoint
-			((TextNoteDialog)dialog).resetValues();
-			break;
+		switch(id) {
+			case DIALOG_TEXT_NOTE:
+				// we need to reset Values like uuid of the dialog,
+				// otherwise we would overwrite an existing waypoint
+				((TextNoteDialog) dialog).resetValues();
+				break;
+			case DIALOG_SPINNER_INPUT:
+				((SpinnerNoteDialog) dialog).resetValues();
+				if (tempSpinnerOptions != null) {
+					((SpinnerNoteDialog) dialog).setItems(tempSpinnerOptions);
+				}
+				break;
+			case DIALOG_NUMBER_INPUT:
+				((NumberNoteDialog) dialog).resetValues();
+				break;
 		}
 		super.onPrepareDialog(id, dialog);
 	}
@@ -811,4 +829,7 @@ public class TrackLogger extends Activity {
 		}
 	}
 
+	public void setTempSpinnerOptions(List<String> options){
+		tempSpinnerOptions = options;
+	}
 }

@@ -1,14 +1,19 @@
 package net.osmtracker.util;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import net.osmtracker.OSMTracker;
 import net.osmtracker.R;
 import net.osmtracker.activity.TrackLogger;
 import net.osmtracker.layout.DisablableTableLayout;
 import net.osmtracker.layout.UserDefinedLayout;
+import net.osmtracker.listener.NumberNoteOnClickListener;
 import net.osmtracker.listener.PageButtonOnClickListener;
+import net.osmtracker.listener.SpinnerNoteOnClickListener;
 import net.osmtracker.listener.StillImageOnClickListener;
 import net.osmtracker.listener.TagButtonOnClickListener;
 import net.osmtracker.listener.TextNoteOnClickListener;
@@ -22,6 +27,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -36,6 +42,8 @@ import android.widget.TableRow;
  * 
  */
 public class UserDefinedLayoutReader {
+
+	private final TrackLogger tl;
 
 	@SuppressWarnings("unused")
 	private static final String TAG = UserDefinedLayoutReader.class.getSimpleName();
@@ -79,6 +87,8 @@ public class UserDefinedLayoutReader {
 	 * Lister bound to picture buttons
 	 */
 	private StillImageOnClickListener stillImageOnClickListener;
+
+    private NumberNoteOnClickListener numberNoteOnClickListener;
 	
 	/**
 	 * {@link Resources} to retrieve String resources
@@ -133,9 +143,11 @@ public class UserDefinedLayoutReader {
 		orientation = resources.getConfiguration().orientation;
 		
 		// Initialize listeners which will be bound to buttons
-		textNoteOnClickListener = new TextNoteOnClickListener(tl);
-		voiceRecordOnClickListener = new VoiceRecOnClickListener(tl);
-		stillImageOnClickListener = new StillImageOnClickListener(tl);
+		this.tl = tl;
+		textNoteOnClickListener = new TextNoteOnClickListener(this.tl);
+		voiceRecordOnClickListener = new VoiceRecOnClickListener(this.tl);
+		stillImageOnClickListener = new StillImageOnClickListener(this.tl);
+		numberNoteOnClickListener = new NumberNoteOnClickListener(this.tl);
 	}
 
 	/**
@@ -263,7 +275,7 @@ public class UserDefinedLayoutReader {
 	 * @param row
 	 *				The table row to attach the button to
 	 */
-	public void inflateButton(TableRow row) {
+	public void inflateButton(TableRow row) throws XmlPullParserException, IOException {
 		Button button = new Button(row.getContext());
 		button.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.FILL_PARENT,
 				TableRow.LayoutParams.FILL_PARENT, 1));
@@ -298,6 +310,15 @@ public class UserDefinedLayoutReader {
 			button.setText(resources.getString(R.string.gpsstatus_record_stillimage));
 			buttonIcon = resources.getDrawable(R.drawable.camera_32x32);
 			button.setOnClickListener(stillImageOnClickListener);
+		} else if (XmlSchema.ATTR_VAL_SPINNER.equals(buttonType)) {
+			button.setText(resources.getString(R.string.gpsstatus_record_spinnernote));
+			List<String> options = createListItemsSpinner(parser);
+			SpinnerNoteOnClickListener spinnerNoteOnClickListener = new SpinnerNoteOnClickListener(tl);
+			spinnerNoteOnClickListener.setOption(options);
+			button.setOnClickListener(spinnerNoteOnClickListener);
+		} else if (XmlSchema.ATTR_VAL_NUMBER.equals(buttonType)){
+			button.setText(resources.getString(R.string.gpsstatus_record_numbernote));
+			button.setOnClickListener(numberNoteOnClickListener);
 		}
 		
 		// Where to draw the button's icon (depending on the current layout)
@@ -355,6 +376,22 @@ public class UserDefinedLayoutReader {
 		return text;
 	}
 
+	private List<String> createListItemsSpinner(XmlPullParser parser) throws XmlPullParserException, IOException {
+		List<String> items = new ArrayList<>();
+		int eventType = parser.getEventType();
+		while (!(eventType == XmlPullParser.END_TAG && XmlSchema.TAG_BUTTON.equals(parser.getName()))) {
+			if (eventType == XmlPullParser.START_TAG) {
+				String currentTag = parser.getName();
+				if (XmlSchema.TAG_ITEM.equals(currentTag)) {
+					String label = parser.getAttributeValue(null, XmlSchema.ATTR_LABEL);
+					items.add(label);
+				}
+			}
+			eventType = parser.next();
+		}
+		return items;
+	}
+
 	/**
 	 * XML Schema
 	 */
@@ -362,6 +399,7 @@ public class UserDefinedLayoutReader {
 		public static final String TAG_LAYOUT = "layout";
 		public static final String TAG_ROW = "row";
 		public static final String TAG_BUTTON = "button";
+		public static final String TAG_ITEM = "item";
 
 		public static final String ATTR_NAME = "name";
 		public static final String ATTR_TYPE = "type";
@@ -375,7 +413,8 @@ public class UserDefinedLayoutReader {
 		public static final String ATTR_VAL_VOICEREC = "voicerec";
 		public static final String ATTR_VAL_TEXTNOTE = "textnote";
 		public static final String ATTR_VAL_PICTURE = "picture";
-		
+		public static final String ATTR_VAL_SPINNER = "spinner";
+		public static final String ATTR_VAL_NUMBER = "number";
 		public static final String ATTR_VAL_ICONPOS_TOP = "top";
 		public static final String ATTR_VAL_ICONPOS_RIGHT = "right";
 		public static final String ATTR_VAL_ICONPOS_BOTTOM = "bottom";
