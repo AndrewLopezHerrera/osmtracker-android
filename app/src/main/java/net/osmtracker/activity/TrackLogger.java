@@ -176,6 +176,10 @@ public class TrackLogger extends Activity {
 
 	private List<String> tempSpinnerOptions;
 
+	private String tagDialogNumberInput;
+
+	private String tagDialogSpinnerInput;
+
 	/*
 	 *  Avoid taking care of duplicated elements
 	 */
@@ -744,12 +748,14 @@ public class TrackLogger extends Activity {
 				((TextNoteDialog) dialog).resetValues();
 				break;
 			case DIALOG_SPINNER_INPUT:
+				((SpinnerNoteDialog) dialog).setTag(tagDialogSpinnerInput);
 				((SpinnerNoteDialog) dialog).resetValues();
 				if (tempSpinnerOptions != null) {
 					((SpinnerNoteDialog) dialog).setItems(tempSpinnerOptions);
 				}
 				break;
 			case DIALOG_NUMBER_INPUT:
+				((NumberNoteDialog) dialog).setTag(tagDialogNumberInput);
 				((NumberNoteDialog) dialog).resetValues();
 				break;
 		}
@@ -831,5 +837,13 @@ public class TrackLogger extends Activity {
 
 	public void setTempSpinnerOptions(List<String> options){
 		tempSpinnerOptions = options;
+	}
+
+	public void setTagDialogNumberInput(String tag){
+		tagDialogNumberInput = tag;
+	}
+
+	public void setTagDialogSpinnerInput(String tag) {
+		tagDialogSpinnerInput = tag;
 	}
 }

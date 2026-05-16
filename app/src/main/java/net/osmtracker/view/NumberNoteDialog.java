@@ -34,27 +34,26 @@ public class NumberNoteDialog extends AlertDialog {
     private boolean saveAsWayPoint, saveAsNote;
     private Context context;
 
+    private String tag;
+
     public NumberNoteDialog(Context context, long trackId) {
         super(context);
         this.context = context;
         this.trackId = trackId;
 
-        // Configurar el campo de texto para números
         input = new EditText(context);
         input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
         input.setHint("0.0");
 
-        this.setTitle(R.string.gpsstatus_record_textnote); // O un string específico para números
+        tag = "Empty";
+
+        this.setTitle(tag);
         this.setCancelable(true);
         this.setView(input);
-
-        // Botón Aceptar
         this.setButton(DialogInterface.BUTTON_POSITIVE,
                 context.getString(android.R.string.ok),
                 (dialog, which) -> {
-                    String noteText = input.getText().toString();
-                    // Si está vacío, podrías optar por no guardar o guardar "0"
-                    if (noteText.isEmpty()) noteText = "0";
+                    String noteText = tag + ": " + input.getText().toString();
 
                     if (saveAsWayPoint) {
                         sendUpdateIntent(OSMTracker.INTENT_UPDATE_WP, wayPointUuid, noteText);
@@ -64,13 +63,9 @@ public class NumberNoteDialog extends AlertDialog {
                         sendUpdateIntent(OSMTracker.INTENT_UPDATE_NOTE, noteUuid, noteText);
                     }
                 });
-
-        // Botón Cancelar
         this.setButton(DialogInterface.BUTTON_NEGATIVE,
                 context.getString(android.R.string.cancel),
                 (dialog, which) -> dialog.cancel());
-
-        // Al cancelar, eliminamos el registro temporal
         this.setOnCancelListener(dialog -> {
             if (wayPointUuid != null) {
                 Intent intent = new Intent(OSMTracker.INTENT_DELETE_WP);
@@ -99,7 +94,6 @@ public class NumberNoteDialog extends AlertDialog {
                 OSMTracker.Preferences.KEY_USE_NOTES,
                 OSMTracker.Preferences.VAL_USE_NOTES);
 
-        // Lógica de flags según preferencias
         saveAsWayPoint = !prefSaveAs.equals("osm_note");
         saveAsNote = !prefSaveAs.equals("waypoint");
 
@@ -145,10 +139,18 @@ public class NumberNoteDialog extends AlertDialog {
         return extras;
     }
 
-    // Dentro de NumberNoteDialog.java
     public void resetValues() {
         this.wayPointUuid = null;
         this.noteUuid = null;
         if (input != null) input.setText("");
+    }
+
+    public void setTag(String tag){
+        this.tag = tag;
+        if (input != null) {
+            input.post(() -> setTitle(tag));
+        } else {
+            setTitle(tag);
+        }
     }
 }

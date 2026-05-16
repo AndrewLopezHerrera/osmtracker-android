@@ -39,6 +39,9 @@
 				<item label="Item 5" />
 			</button>
 		</row>
+		<row>
+			<button type="number" label="Cantidad prueba"/>
+		</row>
 	</layout>
 
 	<layout name="misc">

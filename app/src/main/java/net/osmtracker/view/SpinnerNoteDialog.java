@@ -41,12 +41,13 @@ public class SpinnerNoteDialog extends AlertDialog {
     private boolean saveAsWayPoint, saveAsNote;
     private Context context;
 
+    private String tag;
+
     public SpinnerNoteDialog(Context context, long trackId) {
         super(context);
         this.context = context;
         this.trackId = trackId;
 
-        // Configuración del Spinner
         spinner = new Spinner(context);
         items = new ArrayList<>();
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
@@ -56,12 +57,11 @@ public class SpinnerNoteDialog extends AlertDialog {
         );
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
-
-        this.setTitle(R.string.gpsstatus_record_textnote);
+        this.tag = "Empty";
+        this.setTitle(this.tag);
         this.setCancelable(true);
         this.setView(spinner);
 
-        // Botón Aceptar (Positive)
         this.setButton(DialogInterface.BUTTON_POSITIVE,
                 context.getString(android.R.string.ok),
                 (dialog, which) -> {
@@ -86,12 +86,10 @@ public class SpinnerNoteDialog extends AlertDialog {
                     }
                 });
 
-        // Botón Cancelar (Negative)
         this.setButton(DialogInterface.BUTTON_NEGATIVE,
                 context.getString(android.R.string.cancel),
                 (dialog, which) -> dialog.cancel());
 
-        // Manejo de cancelación (Eliminar el waypoint temporal)
         this.setOnCancelListener(dialog -> {
             if (wayPointUuid != null) {
                 Intent intent = new Intent(OSMTracker.INTENT_DELETE_WP);
@@ -177,6 +175,15 @@ public class SpinnerNoteDialog extends AlertDialog {
             );
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinner.setAdapter(adapter);
+        }
+    }
+
+    public void setTag(String tag){
+        this.tag = tag;
+        if (spinner != null) {
+            spinner.post(() -> setTitle(tag));
+        } else {
+            setTitle(tag);
         }
     }
 }

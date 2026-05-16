@@ -87,8 +87,6 @@ public class UserDefinedLayoutReader {
 	 * Lister bound to picture buttons
 	 */
 	private StillImageOnClickListener stillImageOnClickListener;
-
-    private NumberNoteOnClickListener numberNoteOnClickListener;
 	
 	/**
 	 * {@link Resources} to retrieve String resources
@@ -147,7 +145,6 @@ public class UserDefinedLayoutReader {
 		textNoteOnClickListener = new TextNoteOnClickListener(this.tl);
 		voiceRecordOnClickListener = new VoiceRecOnClickListener(this.tl);
 		stillImageOnClickListener = new StillImageOnClickListener(this.tl);
-		numberNoteOnClickListener = new NumberNoteOnClickListener(this.tl);
 	}
 
 	/**
@@ -311,13 +308,17 @@ public class UserDefinedLayoutReader {
 			buttonIcon = resources.getDrawable(R.drawable.camera_32x32);
 			button.setOnClickListener(stillImageOnClickListener);
 		} else if (XmlSchema.ATTR_VAL_SPINNER.equals(buttonType)) {
-			button.setText(resources.getString(R.string.gpsstatus_record_spinnernote));
+			String text = parser.getAttributeValue(null, XmlSchema.ATTR_LABEL);
+			button.setText(text);
 			List<String> options = createListItemsSpinner(parser);
 			SpinnerNoteOnClickListener spinnerNoteOnClickListener = new SpinnerNoteOnClickListener(tl);
+			spinnerNoteOnClickListener.setTag(text);
 			spinnerNoteOnClickListener.setOption(options);
 			button.setOnClickListener(spinnerNoteOnClickListener);
 		} else if (XmlSchema.ATTR_VAL_NUMBER.equals(buttonType)){
-			button.setText(resources.getString(R.string.gpsstatus_record_numbernote));
+			NumberNoteOnClickListener numberNoteOnClickListener = new NumberNoteOnClickListener(tl);
+			numberNoteOnClickListener.setTag(parser.getAttributeValue(null, XmlSchema.ATTR_LABEL));
+			button.setText(parser.getAttributeValue(null, XmlSchema.ATTR_LABEL));
 			button.setOnClickListener(numberNoteOnClickListener);
 		}
 		
