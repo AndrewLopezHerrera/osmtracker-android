@@ -1,44 +1,60 @@
 package net.osmtracker.groupeddata;
 
+import android.content.Context;
+import android.content.Intent;
+import net.osmtracker.OSMTracker;
+import net.osmtracker.db.TrackContentProvider;
+
 public class GroupedDataManager {
 
-    private boolean RecordingGroupedData;
-    private long CurrentTrackID;
-    private String CurrentUUID;
+    // Nombres corregidos a minúscula inicial (CamelCase estándar de Java)
+    private boolean recordingGroupedData;
+    private long currentTrackID;
+    private String currentUUID;
 
-    private static final GroupedDataManager Instance = new GroupedDataManager();
+    private static final GroupedDataManager instance = new GroupedDataManager();
 
     private GroupedDataManager(){
-        RecordingGroupedData = false;
-        CurrentTrackID = 0;
-        CurrentUUID = "";
+        recordingGroupedData = false;
+        currentTrackID = 0;
+        currentUUID = "";
     }
 
     public static GroupedDataManager getInstance(){
-        return Instance;
+        return instance;
     }
 
     public void activateRecordGroupedData(long trackID, String uuid){
-        CurrentTrackID = trackID;
-        CurrentUUID = uuid;
-        RecordingGroupedData = true;
+        this.currentTrackID = trackID;
+        this.currentUUID = uuid;
+        this.recordingGroupedData = true;
     }
 
     public void deactivateRecordGroupedData(){
-        CurrentTrackID = 0;
-        CurrentUUID = "";
-        RecordingGroupedData = false;
+        this.currentTrackID = 0;
+        this.currentUUID = "";
+        this.recordingGroupedData = false;
     }
 
     public boolean isRecordingGroupedData() {
-        return RecordingGroupedData;
+        return recordingGroupedData;
     }
 
     public long getCurrentTrackID() {
-        return CurrentTrackID;
+        return currentTrackID;
     }
 
     public String getCurrentUUID() {
-        return CurrentUUID;
+        return currentUUID;
+    }
+
+    public void addGroupedData(Context context, String data){
+        if (context == null) return;
+        Intent intent = new Intent(OSMTracker.INTENT_ADD_GROUPED_DATA);
+        intent.putExtra(TrackContentProvider.Schema.COL_TRACK_ID, getCurrentTrackID());
+        intent.putExtra(TrackContentProvider.Schema.COL_NAME, data);
+        intent.putExtra(TrackContentProvider.Schema.COL_UUID_REFERENCE, getCurrentUUID());
+        intent.setPackage(context.getPackageName());
+        context.sendBroadcast(intent);
     }
 }

@@ -38,28 +38,19 @@ public class TagButtonOnClickListener implements OnClickListener {
 	public void onClick(View view) {
 		Button button = (Button) view;
 		String label = button.getText().toString().replaceAll("\n", " ");
-
-		Intent intent = null;
-
 		if(GroupedData.isRecordingGroupedData()){
-			intent = new Intent(OSMTracker.INTENT_ADD_GROUPED_DATA);
-			intent.putExtra(TrackContentProvider.Schema.COL_TRACK_ID, GroupedData.getCurrentTrackID());
-			intent.putExtra(TrackContentProvider.Schema.COL_NAME, label);
-			intent.putExtra(TrackContentProvider.Schema.COL_UUID_REFERENCE, GroupedData.getCurrentUUID());
+			GroupedData.addGroupedData(view.getContext(), label);
 		}
 		else{
 			// Send an intent to inform service to track the waypoint.
-			intent = new Intent(OSMTracker.INTENT_TRACK_WP);
+			Intent intent = new Intent(OSMTracker.INTENT_TRACK_WP);
 			intent.putExtra(TrackContentProvider.Schema.COL_TRACK_ID, currentTrackId);
 			intent.putExtra(OSMTracker.INTENT_KEY_NAME, label);
 			intent.putExtra(OSMTracker.INTENT_KEY_UUID, UUID.randomUUID().toString());
+			String packageName = view.getContext().getPackageName();
+			intent.setPackage(packageName);
+			view.getContext().sendBroadcast(intent);
 		}
-
-		String packageName = view.getContext().getPackageName();
-		intent.setPackage(packageName);
-
-		view.getContext().sendBroadcast(intent);
-
 		// Inform user that the waypoint was tracked
 		Toast.makeText(view.getContext(), view.getContext().getResources().getString(R.string.tracklogger_tracked) + " " + label, Toast.LENGTH_SHORT).show();
 

@@ -31,13 +31,10 @@ public class GroupedDataOnClickListener implements OnClickListener {
         if(isActivated && GroupedData.isRecordingGroupedData()){
             isActivated = false;
             GroupedData.deactivateRecordGroupedData();
-            button.setText(label);
             Toast.makeText(view.getContext(), "Record deactivated: " + label, Toast.LENGTH_SHORT).show();
         }
         else if(!isActivated && !GroupedData.isRecordingGroupedData()){
             activateRecord(label, view);
-            String text = label + " / recording";
-            button.setText(text);
             Toast.makeText(view.getContext(), "Record activated: " + label, Toast.LENGTH_SHORT).show();
         }
         else{

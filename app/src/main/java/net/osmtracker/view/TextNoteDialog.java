@@ -14,6 +14,7 @@ import androidx.preference.PreferenceManager;
 import net.osmtracker.OSMTracker;
 import net.osmtracker.R;
 import net.osmtracker.db.TrackContentProvider;
+import net.osmtracker.groupeddata.GroupedDataManager;
 
 import java.util.UUID;
 
@@ -61,6 +62,7 @@ public class TextNoteDialog extends AlertDialog {
 	boolean saveAsWayPoint, saveAsNote = false;
 
 	private Context context;
+	private GroupedDataManager groupedDataManager;
 
 	public TextNoteDialog(Context context, long trackId) {
 		super(context);
@@ -77,12 +79,18 @@ public class TextNoteDialog extends AlertDialog {
 		this.setCancelable(true);
 		this.setView(input);
 
+		this.groupedDataManager = GroupedDataManager.getInstance();
+
 		this.setButton(DialogInterface.BUTTON_POSITIVE,
 				context.getString(android.R.string.ok),
 				(dialog, which) -> {
 
 
 			String noteText = input.getText().toString();
+
+			if (groupedDataManager.isRecordingGroupedData()){
+				groupedDataManager.addGroupedData(getContext(), noteText);
+			}
 
 			if (saveAsWayPoint) {
 				// Track waypoint with user input text
@@ -149,7 +157,7 @@ public class TextNoteDialog extends AlertDialog {
 				break;
 		}
 
-		if (saveAsWayPoint) {
+		if (saveAsWayPoint  && !groupedDataManager.isRecordingGroupedData()) {
 			if (wayPointUuid == null) {
 				// there is no UUID set for the waypoint we're working on
 				// so we need to generate a UUID and track this point

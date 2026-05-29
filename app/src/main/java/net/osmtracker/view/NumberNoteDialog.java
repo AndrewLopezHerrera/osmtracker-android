@@ -16,6 +16,7 @@ import androidx.preference.PreferenceManager;
 import net.osmtracker.OSMTracker;
 import net.osmtracker.R;
 import net.osmtracker.db.TrackContentProvider;
+import net.osmtracker.groupeddata.GroupedDataManager;
 
 import java.util.UUID;
 
@@ -35,6 +36,7 @@ public class NumberNoteDialog extends AlertDialog {
     private Context context;
 
     private String tag;
+    private GroupedDataManager groupedDataManager;
 
     public NumberNoteDialog(Context context, long trackId) {
         super(context);
@@ -50,11 +52,17 @@ public class NumberNoteDialog extends AlertDialog {
         this.setTitle(tag);
         this.setCancelable(true);
         this.setView(input);
+
+        this.groupedDataManager = GroupedDataManager.getInstance();
+
         this.setButton(DialogInterface.BUTTON_POSITIVE,
                 context.getString(android.R.string.ok),
                 (dialog, which) -> {
                     String noteText = tag + ": " + input.getText().toString();
 
+                    if (groupedDataManager.isRecordingGroupedData()){
+                        groupedDataManager.addGroupedData(getContext(), noteText);
+                    }
                     if (saveAsWayPoint) {
                         sendUpdateIntent(OSMTracker.INTENT_UPDATE_WP, wayPointUuid, noteText);
                     }
@@ -97,7 +105,7 @@ public class NumberNoteDialog extends AlertDialog {
         saveAsWayPoint = !prefSaveAs.equals("osm_note");
         saveAsNote = !prefSaveAs.equals("waypoint");
 
-        if (saveAsWayPoint && wayPointUuid == null) {
+        if (saveAsWayPoint && wayPointUuid == null && !groupedDataManager.isRecordingGroupedData()) {
             wayPointUuid = UUID.randomUUID().toString();
             sendTrackIntent(OSMTracker.INTENT_TRACK_WP, wayPointUuid);
         }

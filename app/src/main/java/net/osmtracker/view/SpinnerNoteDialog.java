@@ -16,6 +16,7 @@ import androidx.preference.PreferenceManager;
 import net.osmtracker.OSMTracker;
 import net.osmtracker.R;
 import net.osmtracker.db.TrackContentProvider;
+import net.osmtracker.groupeddata.GroupedDataManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +43,7 @@ public class SpinnerNoteDialog extends AlertDialog {
     private Context context;
 
     private String tag;
+    private GroupedDataManager groupedDataManager;
 
     public SpinnerNoteDialog(Context context, long trackId) {
         super(context);
@@ -61,28 +63,23 @@ public class SpinnerNoteDialog extends AlertDialog {
         this.setTitle(this.tag);
         this.setCancelable(true);
         this.setView(spinner);
+        this.groupedDataManager = GroupedDataManager.getInstance();
 
         this.setButton(DialogInterface.BUTTON_POSITIVE,
                 context.getString(android.R.string.ok),
                 (dialog, which) -> {
-                    String selectedText = spinner.getSelectedItem().toString();
+                    String selectedText = tag + ": " + spinner.getSelectedItem().toString();
+
+                    if (groupedDataManager.isRecordingGroupedData()){
+                        groupedDataManager.addGroupedData(getContext(), selectedText);
+                    }
 
                     if (saveAsWayPoint) {
-                        Intent intent = new Intent(OSMTracker.INTENT_UPDATE_WP);
-                        intent.putExtra(TrackContentProvider.Schema.COL_TRACK_ID, this.trackId);
-                        intent.putExtra(OSMTracker.INTENT_KEY_NAME, selectedText);
-                        intent.putExtra(OSMTracker.INTENT_KEY_UUID, this.wayPointUuid);
-                        intent.setPackage(getContext().getPackageName());
-                        context.sendBroadcast(intent);
+                        sendUpdateIntent(OSMTracker.INTENT_UPDATE_WP, wayPointUuid, selectedText);
                     }
 
                     if (saveAsNote) {
-                        Intent noteIntent = new Intent(OSMTracker.INTENT_UPDATE_NOTE);
-                        noteIntent.putExtra(TrackContentProvider.Schema.COL_TRACK_ID, this.trackId);
-                        noteIntent.putExtra(OSMTracker.INTENT_KEY_NAME, selectedText);
-                        noteIntent.putExtra(OSMTracker.INTENT_KEY_UUID, this.noteUuid);
-                        noteIntent.setPackage(getContext().getPackageName());
-                        context.sendBroadcast(noteIntent);
+                        sendUpdateIntent(OSMTracker.INTENT_UPDATE_NOTE, noteUuid, selectedText);
                     }
                 });
 
@@ -121,7 +118,7 @@ public class SpinnerNoteDialog extends AlertDialog {
                 saveAsNote = true;
                 break;
         }
-        if (saveAsWayPoint && wayPointUuid == null) {
+        if (saveAsWayPoint && wayPointUuid == null && !groupedDataManager.isRecordingGroupedData()) {
             wayPointUuid = UUID.randomUUID().toString();
             sendTrackIntent(OSMTracker.INTENT_TRACK_WP, wayPointUuid);
         }
@@ -185,5 +182,14 @@ public class SpinnerNoteDialog extends AlertDialog {
         } else {
             setTitle(tag);
         }
+    }
+
+    private void sendUpdateIntent(String action, String uuid, String value) {
+        Intent intent = new Intent(action);
+        intent.putExtra(TrackContentProvider.Schema.COL_TRACK_ID, trackId);
+        intent.putExtra(OSMTracker.INTENT_KEY_NAME, value);
+        intent.putExtra(OSMTracker.INTENT_KEY_UUID, uuid);
+        intent.setPackage(getContext().getPackageName());
+        context.sendBroadcast(intent);
     }
 }
