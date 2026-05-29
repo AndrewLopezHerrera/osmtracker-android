@@ -116,6 +116,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		+ TrackContentProvider.Schema.COL_OSM_UPLOAD_DATE + " long" // null indicates not yet uploaded
 	    + ")";
 
+	private static final String SQL_CREATE_TABLE_GROUPED_DATA =
+		"create table " + TrackContentProvider.Schema.TBL_GROUPED_DATA + " ("
+		+ TrackContentProvider.Schema.COL_ID + " integer primary key autoincrement,"
+		+ TrackContentProvider.Schema.COL_TRACK_ID + " integer not null,"
+		+ TrackContentProvider.Schema.COL_NAME + " text not null,"
+		+ TrackContentProvider.Schema.COL_UUID_REFERENCE + " text not null"
+		+ ")";
+
 	/**
 	 * Database name.
 	 */
@@ -143,9 +151,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	 * v17: add TBL_TRACKPOINT.COL_ATMOSPHERIC_PRESSURE and TBL_WAYPOINT.COL_ATMOSPHERIC_PRESSURE
 	 * v18: add TBL_NOTE
 	 * v19: add TBL_TRACKPOINT.COL_SEG_ID for track segments support
+	 * v20: add TBL_GROUPED_DATA to allow grouping multiple data entries.
 	 *</pre>
 	 */
-	private static final int DB_VERSION = 19;
+	private static final int DB_VERSION = 20;
 
 	private Context context;
 
@@ -166,6 +175,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL(SQL_CREATE_TABLE_TRACK);
 		db.execSQL("drop table if exists " + TrackContentProvider.Schema.TBL_NOTE);
 		db.execSQL(SQL_CREATE_TABLE_NOTE);
+		db.execSQL("drop table if exists " + TrackContentProvider.Schema.TBL_GROUPED_DATA);
+		db.execSQL(SQL_CREATE_TABLE_GROUPED_DATA);
 	}
 
 	@Override
@@ -207,6 +218,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			db.execSQL(SQL_CREATE_TABLE_NOTE);
 		case 18:
 			db.execSQL("alter table "+TrackContentProvider.Schema.TBL_TRACKPOINT + " add column " + TrackContentProvider.Schema.COL_SEG_ID + " integer default 0");
+		case 19:
+		case 20:
+			db.execSQL(SQL_CREATE_TABLE_GROUPED_DATA);
 		}
 	}
 

@@ -11,6 +11,7 @@ import net.osmtracker.R;
 import net.osmtracker.activity.TrackLogger;
 import net.osmtracker.layout.DisablableTableLayout;
 import net.osmtracker.layout.UserDefinedLayout;
+import net.osmtracker.listener.GroupedDataOnClickListener;
 import net.osmtracker.listener.NumberNoteOnClickListener;
 import net.osmtracker.listener.PageButtonOnClickListener;
 import net.osmtracker.listener.SpinnerNoteOnClickListener;
@@ -310,6 +311,7 @@ public class UserDefinedLayoutReader {
 		} else if (XmlSchema.ATTR_VAL_SPINNER.equals(buttonType)) {
 			String text = parser.getAttributeValue(null, XmlSchema.ATTR_LABEL);
 			button.setText(text);
+			buttonIcon = iconResolver.getIcon(parser.getAttributeValue(null, XmlSchema.ATTR_ICON));
 			List<String> options = createListItemsSpinner(parser);
 			SpinnerNoteOnClickListener spinnerNoteOnClickListener = new SpinnerNoteOnClickListener(tl);
 			spinnerNoteOnClickListener.setTag(text);
@@ -319,7 +321,13 @@ public class UserDefinedLayoutReader {
 			NumberNoteOnClickListener numberNoteOnClickListener = new NumberNoteOnClickListener(tl);
 			numberNoteOnClickListener.setTag(parser.getAttributeValue(null, XmlSchema.ATTR_LABEL));
 			button.setText(parser.getAttributeValue(null, XmlSchema.ATTR_LABEL));
+			buttonIcon = iconResolver.getIcon(parser.getAttributeValue(null, XmlSchema.ATTR_ICON));
 			button.setOnClickListener(numberNoteOnClickListener);
+		} else if (XmlSchema.ATTR_VAL_GROUPED_DATA.equals(buttonType)){
+			button.setText(findLabel(parser.getAttributeValue(null, XmlSchema.ATTR_LABEL), resources));
+			GroupedDataOnClickListener groupedDataOnClickListener = new GroupedDataOnClickListener(currentTrackId);
+			buttonIcon = iconResolver.getIcon(parser.getAttributeValue(null, XmlSchema.ATTR_ICON));
+			button.setOnClickListener(groupedDataOnClickListener);
 		}
 		
 		// Where to draw the button's icon (depending on the current layout)
@@ -416,6 +424,7 @@ public class UserDefinedLayoutReader {
 		public static final String ATTR_VAL_PICTURE = "picture";
 		public static final String ATTR_VAL_SPINNER = "spinner";
 		public static final String ATTR_VAL_NUMBER = "number";
+		public static final String ATTR_VAL_GROUPED_DATA = "grouped_data";
 		public static final String ATTR_VAL_ICONPOS_TOP = "top";
 		public static final String ATTR_VAL_ICONPOS_RIGHT = "right";
 		public static final String ATTR_VAL_ICONPOS_BOTTOM = "bottom";

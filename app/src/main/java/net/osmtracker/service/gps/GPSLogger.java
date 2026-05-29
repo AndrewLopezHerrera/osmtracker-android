@@ -198,6 +198,14 @@ public class GPSLogger extends Service implements LocationListener {
 				}
 			} else if (OSMTracker.INTENT_STOP_TRACKING.equals(intent.getAction())) {
 				stopTrackingAndSave();
+			} else if (OSMTracker.INTENT_ADD_GROUPED_DATA.equals(intent.getAction())){
+				Bundle extras = intent.getExtras();
+				if (extras != null) {
+					long trackId = extras.getLong(TrackContentProvider.Schema.COL_TRACK_ID);
+					String uuid_reference = extras.getString(TrackContentProvider.Schema.COL_UUID_REFERENCE);
+					String name = extras.getString(TrackContentProvider.Schema.COL_NAME);
+					dataHelper.addGroupedData(trackId, uuid_reference, name);
+				}
 			}
 		}
 	};
@@ -264,6 +272,7 @@ public class GPSLogger extends Service implements LocationListener {
 		filter.addAction(OSMTracker.INTENT_DELETE_WP);
 		filter.addAction(OSMTracker.INTENT_START_TRACKING);
 		filter.addAction(OSMTracker.INTENT_STOP_TRACKING);
+		filter.addAction(OSMTracker.INTENT_ADD_GROUPED_DATA);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
 			registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED);
 		} else {

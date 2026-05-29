@@ -153,6 +153,8 @@ public class OSMTracker {
 	 */
 	public final static String INTENT_STOP_TRACKING = OSMTracker.PACKAGE_NAME + ".intent.STOP_TRACKING";
 
+	public final static String INTENT_ADD_GROUPED_DATA = OSMTracker.PACKAGE_NAME + ".intent.ADD_GROUPED_DATA";
+
 	/**
 	 * Key for extra data "waypoint name" in Intent
 	 */

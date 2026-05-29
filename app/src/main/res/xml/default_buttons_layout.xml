@@ -23,24 +23,15 @@
 			<button type="page" label="@string/tag.landuse" icon="button_landuse" targetlayout="landuse"  />
 		</row>
 		<row>
-			<button type="number" label="prueba numero"/>
-			<button type="spinner" label="prueba spinner Opcion">
+			<button type="number" label="prueba numero" icon="button_number"/>
+			<button type="spinner" label="prueba spinner Opcion" icon="button_spinner">
 				<item label="Opcion 1" />
 				<item label="Opcion 2" />
 				<item label="Opcion 3" />
 				<item label="Opcion 4" />
 				<item label="Opcion 5" />
 			</button>
-			<button type="spinner" label="prueba spinner Item">
-				<item label="Item 1" />
-				<item label="Item 2" />
-				<item label="Item 3" />
-				<item label="Item 4" />
-				<item label="Item 5" />
-			</button>
-		</row>
-		<row>
-			<button type="number" label="Cantidad prueba"/>
+			<button type="grouped_data" label="form" icon="button_grouped_data"/>
 		</row>
 	</layout>
 

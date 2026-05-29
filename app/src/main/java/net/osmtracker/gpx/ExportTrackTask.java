@@ -498,6 +498,14 @@ public abstract class ExportTrackTask extends AsyncTask<Void, Long, Boolean> {
 				out.append("\t\t" + "<sat>" + c.getInt(c.getColumnIndex(TrackContentProvider.Schema.COL_NBSATELLITES)) + "</sat>" + "\n");
 			}
 
+			int trackIdColumnIndex = c.getColumnIndex(TrackContentProvider.Schema.COL_TRACK_ID);
+			if (trackIdColumnIndex != -1 && !c.isNull(trackIdColumnIndex)) {
+				long trackID = c.getLong(trackIdColumnIndex);
+				int uuidColumnIndex = c.getColumnIndex(TrackContentProvider.Schema.COL_UUID);
+				String uuid = c.getString(uuidColumnIndex);
+				out.append(writeExtensions(trackID, uuid));
+			}
+
 			if(fillHDOP && ! c.isNull(c.getColumnIndex(TrackContentProvider.Schema.COL_ACCURACY))) {
 				out.append("\t\t" + "<hdop>" + (c.getDouble(c.getColumnIndex(TrackContentProvider.Schema.COL_ACCURACY)) / OSMTracker.HDOP_APPROXIMATION_FACTOR) + "</hdop>" + "\n");
 			}
@@ -529,6 +537,34 @@ public abstract class ExportTrackTask extends AsyncTask<Void, Long, Boolean> {
 				publishProgress((long) dialogUpdateThreshold);
 			}
 		}
+	}
+
+	private String writeExtensions(Long trackID, String uuid){
+		if (uuid == null || uuid.isEmpty())
+			return "";
+		StringBuilder buff = new StringBuilder();
+		ContentResolver cr = context.getContentResolver();
+		String selection = TrackContentProvider.Schema.COL_UUID_REFERENCE + " = ?";
+		String[] selectionArgs = new String[] { uuid };
+		Cursor cGroupedData = cr.query(
+				TrackContentProvider.groupedDataUri(trackID),
+				null,
+				selection,
+				selectionArgs,
+				null
+		);
+		if (cGroupedData != null) {
+			if (cGroupedData.moveToFirst()) {
+				buff.append("\t\t<extensions>\n");
+				do {
+					String data = cGroupedData.getString(cGroupedData.getColumnIndex(TrackContentProvider.Schema.COL_NAME));
+					buff.append("\t\t\t" + "<data>" + CDATA_START).append(data).append(CDATA_END).append("</data>").append("\n");
+				} while (cGroupedData.moveToNext());
+				buff.append("\t\t</extensions>\n");
+			}
+			cGroupedData.close();
+		}
+		return buff.toString();
 	}
 
 	/**

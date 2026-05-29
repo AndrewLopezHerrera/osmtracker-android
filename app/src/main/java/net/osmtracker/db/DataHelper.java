@@ -395,6 +395,15 @@ public class DataHelper {
 		contentResolver.update(trackUri, values, null, null);
 	}
 
+	public void addGroupedData(Long trackID, String UUID, String name){
+		ContentValues values = new ContentValues();
+		values.put(TrackContentProvider.Schema.COL_UUID_REFERENCE, UUID);
+		values.put(TrackContentProvider.Schema.COL_NAME, name);
+		Uri trackUri = ContentUris.withAppendedId(TrackContentProvider.CONTENT_URI_TRACK, trackID);
+		Uri finalUri = Uri.withAppendedPath(trackUri, TrackContentProvider.Schema.TBL_GROUPED_DATA + "s");
+		contentResolver.insert(finalUri, values);
+	}
+
 	/**
 	 * Find the active track ID, if any.
 	 * @param cr  {@link ContentResolver} for query
@@ -467,6 +476,7 @@ public class DataHelper {
 		values.put(TrackContentProvider.Schema.COL_OSM_UPLOAD_DATE, uploadTime);
 		cr.update(noteUri, values, null, null);
 	}
+
 	/**
 	 * Renames a file inside track directory, keeping the extension
 	 * 
