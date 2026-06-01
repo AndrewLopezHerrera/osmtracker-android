@@ -31,7 +31,6 @@
 				<item label="Opcion 4" />
 				<item label="Opcion 5" />
 			</button>
-			<button type="grouped_data" label="form" icon="button_grouped_data"/>
 		</row>
 	</layout>
 
