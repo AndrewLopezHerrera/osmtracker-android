@@ -29,6 +29,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -41,7 +42,9 @@ import net.osmtracker.OSMTracker;
 import net.osmtracker.R;
 import net.osmtracker.db.DataHelper;
 import net.osmtracker.db.TrackContentProvider;
+import net.osmtracker.groupeddata.GroupedDataManager;
 import net.osmtracker.layout.GpsStatusRecord;
+import net.osmtracker.layout.GroupedDataStatusLayout;
 import net.osmtracker.layout.UserDefinedLayout;
 import net.osmtracker.listener.PressureListener;
 import net.osmtracker.listener.SensorListener;
@@ -233,6 +236,7 @@ public class TrackLogger extends Activity {
 		
 		mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 		mediaButtonReceiver = new ComponentName(this, MediaButtonReceiver.class.getName());
+		GroupedDataManager.getInstance().setCurrentTrackID(currentTrackId);
 	}
 
 	/**
@@ -464,6 +468,10 @@ public class TrackLogger extends Activity {
 			buttonsEnabled = enabled;
 			mainLayout.setEnabled(enabled);
 		}
+		GroupedDataStatusLayout groupedDataLayout = findViewById(R.id.groupedDataStatus);
+		if (groupedDataLayout != null) {
+			groupedDataLayout.setEnable(enabled);
+		}
 	}
 
 	// Create options menu
@@ -489,7 +497,8 @@ public class TrackLogger extends Activity {
 				sendBroadcast(intent);
 				((GpsStatusRecord) findViewById(R.id.gpsStatus)).manageRecordingIndicator(false);
 				finish();
-			}		
+			}
+			GroupedDataManager.getInstance().deactivateRecordGroupedData();
 			break;
 		case R.id.tracklogger_menu_settings:
 			// Start settings activity
@@ -671,7 +680,7 @@ public class TrackLogger extends Activity {
 	 * Setter for gpsLogger
 	 * 
 	 * @param l
-	 *				{@link GPSLogger} to set.
+	 *				{@link GPSLogger} to set.pop
 	 */
 	public void setGpsLogger(GPSLogger l) {
 		this.gpsLogger = l;

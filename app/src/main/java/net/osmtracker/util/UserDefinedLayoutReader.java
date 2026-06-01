@@ -2,16 +2,15 @@ package net.osmtracker.util;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 import net.osmtracker.OSMTracker;
 import net.osmtracker.R;
 import net.osmtracker.activity.TrackLogger;
+import net.osmtracker.groupeddata.GroupedDataManager;
 import net.osmtracker.layout.DisablableTableLayout;
 import net.osmtracker.layout.UserDefinedLayout;
-import net.osmtracker.listener.GroupedDataOnClickListener;
 import net.osmtracker.listener.NumberNoteOnClickListener;
 import net.osmtracker.listener.PageButtonOnClickListener;
 import net.osmtracker.listener.SpinnerNoteOnClickListener;
@@ -28,7 +27,6 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -323,11 +321,6 @@ public class UserDefinedLayoutReader {
 			button.setText(parser.getAttributeValue(null, XmlSchema.ATTR_LABEL));
 			buttonIcon = iconResolver.getIcon(parser.getAttributeValue(null, XmlSchema.ATTR_ICON));
 			button.setOnClickListener(numberNoteOnClickListener);
-		} else if (XmlSchema.ATTR_VAL_GROUPED_DATA.equals(buttonType)){
-			button.setText(findLabel(parser.getAttributeValue(null, XmlSchema.ATTR_LABEL), resources));
-			GroupedDataOnClickListener groupedDataOnClickListener = new GroupedDataOnClickListener(currentTrackId);
-			buttonIcon = iconResolver.getIcon(parser.getAttributeValue(null, XmlSchema.ATTR_ICON));
-			button.setOnClickListener(groupedDataOnClickListener);
 		}
 		
 		// Where to draw the button's icon (depending on the current layout)

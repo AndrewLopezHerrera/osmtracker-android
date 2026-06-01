@@ -5,12 +5,14 @@ import android.content.Intent;
 import net.osmtracker.OSMTracker;
 import net.osmtracker.db.TrackContentProvider;
 
+import java.util.UUID;
+
 public class GroupedDataManager {
 
-    // Nombres corregidos a minúscula inicial (CamelCase estándar de Java)
     private boolean recordingGroupedData;
     private long currentTrackID;
     private String currentUUID;
+    private int IDGroupData;
 
     private static final GroupedDataManager instance = new GroupedDataManager();
 
@@ -24,14 +26,22 @@ public class GroupedDataManager {
         return instance;
     }
 
-    public void activateRecordGroupedData(long trackID, String uuid){
-        this.currentTrackID = trackID;
+    public void activateRecordGroupedData(Context context){
+        IDGroupData++;
+        String name = "ID_Data_Group" + IDGroupData;
+        String uuid = UUID.randomUUID().toString();
         this.currentUUID = uuid;
         this.recordingGroupedData = true;
+        Intent intent = new Intent(OSMTracker.INTENT_TRACK_WP);
+        intent.putExtra(TrackContentProvider.Schema.COL_TRACK_ID, this.currentTrackID);
+        intent.putExtra(OSMTracker.INTENT_KEY_NAME, name);
+        intent.putExtra(OSMTracker.INTENT_KEY_UUID, uuid);
+        String packageName = context.getPackageName();
+        intent.setPackage(packageName);
+        context.sendBroadcast(intent);
     }
 
     public void deactivateRecordGroupedData(){
-        this.currentTrackID = 0;
         this.currentUUID = "";
         this.recordingGroupedData = false;
     }
@@ -56,5 +66,10 @@ public class GroupedDataManager {
         intent.putExtra(TrackContentProvider.Schema.COL_UUID_REFERENCE, getCurrentUUID());
         intent.setPackage(context.getPackageName());
         context.sendBroadcast(intent);
+    }
+
+    public void setCurrentTrackID(long currentTrackID) {
+        this.currentTrackID = currentTrackID;
+        IDGroupData = 0;
     }
 }

@@ -1,10 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="fill_parent"
-	android:orientation="vertical" android:layout_height="fill_parent" android:fitsSystemWindows="true">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical"
+	android:fitsSystemWindows="true">
+
 	<net.osmtracker.layout.GpsStatusRecord
-		android:id="@+id/gpsStatus" android:layout_width="fill_parent"
+		android:id="@+id/gpsStatus"
+		android:layout_width="match_parent"
 		android:layout_height="wrap_content" />
 
-	<LinearLayout android:id="@+id/tracklogger_root" android:layout_width="fill_parent"
-	    android:layout_height="fill_parent" android:orientation="vertical"></LinearLayout>
+	<net.osmtracker.layout.GroupedDataStatusLayout
+		android:id="@+id/groupedDataStatus"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:minHeight="50dp"
+		tools:layout="@layout/grouped_data_layout" />
+
+	<LinearLayout
+		android:id="@+id/tracklogger_root"
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:layout_weight="1"
+		android:orientation="vertical">
+
+	</LinearLayout>
+
 </LinearLayout>
