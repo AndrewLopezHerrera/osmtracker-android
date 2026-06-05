@@ -82,7 +82,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		+ "_idx ON " + TrackContentProvider.Schema.TBL_WAYPOINT + "(" + TrackContentProvider.Schema.COL_TRACK_ID + ")";
 
 	/**
-	 * SQL for creating table TRACK
+	 * SQL for creating table TRACKprivate static final String SQL_CREATE_TABLE_WAYPOINT = ""
+		+ "create table " + TrackContentProvider.Schema.TBL_WAYPOINT + " ("
+		+ TrackContentProvider.Schema.COL_ID + " integer primary key autoincrement,"
+		+ TrackContentProvider.Schema.COL_TRACK_ID + " integer not null,"
+		+ TrackContentProvider.Schema.COL_UUID + " text,"
+		+ TrackContentProvider.Schema.COL_LATITUDE + " double not null,"
+		+ TrackContentProvider.Schema.COL_LONGITUDE + " double not null,"
+		+ TrackContentProvider.Schema.COL_ELEVATION + " double null,"
+		+ TrackContentProvider.Schema.COL_ACCURACY + " double null,"
+		+ TrackContentProvider.Schema.COL_TIMESTAMP + " long not null,"
+		+ TrackContentProvider.Schema.COL_NAME + " text,"
+		+ TrackContentProvider.Schema.COL_LINK + " text,"
+		+ TrackContentProvider.Schema.COL_NBSATELLITES + " integer not null,"
+		+ TrackContentProvider.Schema.COL_COMPASS + " double null,"
+		+ TrackContentProvider.Schema.COL_COMPASS_ACCURACY + " integer null,"
+		+ TrackContentProvider.Schema.COL_ATMOSPHERIC_PRESSURE + " double null"	+ ")";
 	 * @since 5
 	 */
 	@SuppressWarnings("deprecation")
@@ -117,12 +132,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	    + ")";
 
 	private static final String SQL_CREATE_TABLE_GROUPED_DATA =
-		"create table " + TrackContentProvider.Schema.TBL_GROUPED_DATA + " ("
-		+ TrackContentProvider.Schema.COL_ID + " integer primary key autoincrement,"
-		+ TrackContentProvider.Schema.COL_TRACK_ID + " integer not null,"
-		+ TrackContentProvider.Schema.COL_NAME + " text not null,"
-		+ TrackContentProvider.Schema.COL_UUID_REFERENCE + " text not null"
-		+ ")";
+			"create table " + TrackContentProvider.Schema.TBL_GROUPED_DATA + " ("
+			+ TrackContentProvider.Schema.COL_ID + " integer primary key autoincrement, "
+			+ TrackContentProvider.Schema.COL_WAYPOINT_REFERENCE + " integer not null, "
+			+ TrackContentProvider.Schema.COL_NAME + " text not null, "
+			+ TrackContentProvider.Schema.COL_LINK + " text, "
+			+ "FOREIGN KEY(" + TrackContentProvider.Schema.COL_WAYPOINT_REFERENCE + ") REFERENCES "
+			+ TrackContentProvider.Schema.TBL_WAYPOINT + "(" + TrackContentProvider.Schema.COL_ID + ")"
+			+ ");";
 
 	/**
 	 * Database name.

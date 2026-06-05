@@ -201,10 +201,18 @@ public class GPSLogger extends Service implements LocationListener {
 			} else if (OSMTracker.INTENT_ADD_GROUPED_DATA.equals(intent.getAction())){
 				Bundle extras = intent.getExtras();
 				if (extras != null) {
-					long trackId = extras.getLong(TrackContentProvider.Schema.COL_TRACK_ID);
-					String uuid_reference = extras.getString(TrackContentProvider.Schema.COL_UUID_REFERENCE);
+					String uuid = extras.getString(TrackContentProvider.Schema.COL_UUID);
 					String name = extras.getString(TrackContentProvider.Schema.COL_NAME);
-					dataHelper.addGroupedData(trackId, uuid_reference, name);
+					String link = extras.getString(TrackContentProvider.Schema.COL_LINK);
+					dataHelper.addGroupedData(uuid, name, link);
+				}
+			} else if (OSMTracker.INTENT_UPDATE_COORDINATES_WAYPOINT.equals(intent.getAction())){
+				Bundle extras = intent.getExtras();
+				if (extras != null) {
+					lastLocation = lmgr.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+					long trackId = extras.getLong(TrackContentProvider.Schema.COL_TRACK_ID);
+					String uuid = extras.getString(TrackContentProvider.Schema.COL_UUID);
+					dataHelper.updateCoordinatesWaypoint(trackId, uuid, lastLocation);
 				}
 			}
 		}

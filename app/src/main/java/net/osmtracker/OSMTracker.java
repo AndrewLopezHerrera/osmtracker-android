@@ -155,6 +155,10 @@ public class OSMTracker {
 
 	public final static String INTENT_ADD_GROUPED_DATA = OSMTracker.PACKAGE_NAME + ".intent.ADD_GROUPED_DATA";
 
+	public final static String INTENT_UPDATE_UI_DATA_GROUP = OSMTracker.PACKAGE_NAME + "intent.UPDATE_GROUPED_DATA_UI";
+
+	public final static String INTENT_UPDATE_COORDINATES_WAYPOINT = OSMTracker.PACKAGE_NAME + "intent.UPDATE_COORDINATES_WAYPOINT";
+
 	/**
 	 * Key for extra data "waypoint name" in Intent
 	 */

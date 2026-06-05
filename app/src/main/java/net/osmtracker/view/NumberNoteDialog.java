@@ -61,7 +61,7 @@ public class NumberNoteDialog extends AlertDialog {
                     String noteText = tag + ": " + input.getText().toString();
 
                     if (groupedDataManager.isRecordingGroupedData()){
-                        groupedDataManager.addGroupedData(getContext(), noteText);
+                        groupedDataManager.addGroupedData(getContext(), noteText, null);
                     }
                     if (saveAsWayPoint) {
                         sendUpdateIntent(OSMTracker.INTENT_UPDATE_WP, wayPointUuid, noteText);

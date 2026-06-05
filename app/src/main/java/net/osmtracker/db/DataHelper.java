@@ -395,13 +395,45 @@ public class DataHelper {
 		contentResolver.update(trackUri, values, null, null);
 	}
 
-	public void addGroupedData(Long trackID, String UUID, String name){
+	public void addGroupedData(String waypointUUID, String name, String link) {
+		long waypointId = getWaypointIdByUuid(waypointUUID);
+		if (waypointId == -1) {
+			Log.e("OSMTracker", "No se encontró el waypoint con el UUID: " + waypointUUID);
+			return;
+		}
 		ContentValues values = new ContentValues();
-		values.put(TrackContentProvider.Schema.COL_UUID_REFERENCE, UUID);
+		values.put(TrackContentProvider.Schema.COL_WAYPOINT_REFERENCE, waypointId);
 		values.put(TrackContentProvider.Schema.COL_NAME, name);
-		Uri trackUri = ContentUris.withAppendedId(TrackContentProvider.CONTENT_URI_TRACK, trackID);
-		Uri finalUri = Uri.withAppendedPath(trackUri, TrackContentProvider.Schema.TBL_GROUPED_DATA + "s");
+		values.put(TrackContentProvider.Schema.COL_LINK, link);
+		Uri finalUri = TrackContentProvider.CONTENT_URI_GROUPED_DATA;
 		contentResolver.insert(finalUri, values);
+	}
+
+	private long getWaypointIdByUuid(String UUID) {
+		long id = -1;
+		Uri waypointsUri = TrackContentProvider.CONTENT_URI_WAYPOINT;
+		String[] projection = { TrackContentProvider.Schema.COL_ID };
+		String selection = "uuid = ?";
+		String[] selectionArgs = { UUID };
+
+		try (Cursor cursor = contentResolver.query(waypointsUri, projection, selection, selectionArgs, null)) {
+			if (cursor != null && cursor.moveToFirst()) {
+				int idColumnIndex = cursor.getColumnIndexOrThrow(TrackContentProvider.Schema.COL_ID);
+				id = cursor.getLong(idColumnIndex);
+			}
+		} catch (Exception e) {
+			Log.e("OSMTracker", "Error al consultar ID del waypoint por UUID " + UUID, e);
+		}
+		return id;
+	}
+
+	public void updateCoordinatesWaypoint(Long trackID, String UUID, Location location){
+		ContentValues values = new ContentValues();
+		values.put(TrackContentProvider.Schema.COL_LATITUDE, location.getLatitude());
+		values.put(TrackContentProvider.Schema.COL_LONGITUDE, location.getLongitude());
+		Uri trackUri = ContentUris.withAppendedId(TrackContentProvider.CONTENT_URI_TRACK, trackID);
+		contentResolver.update(Uri.withAppendedPath(trackUri, TrackContentProvider.Schema.TBL_WAYPOINT + "s"), values,
+				"uuid = ?", new String[] { UUID });
 	}
 
 	/**

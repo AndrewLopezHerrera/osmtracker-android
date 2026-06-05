@@ -89,7 +89,7 @@ public class TextNoteDialog extends AlertDialog {
 			String noteText = input.getText().toString();
 
 			if (groupedDataManager.isRecordingGroupedData()){
-				groupedDataManager.addGroupedData(getContext(), noteText);
+				groupedDataManager.addGroupedData(getContext(), noteText, null);
 			}
 
 			if (saveAsWayPoint) {

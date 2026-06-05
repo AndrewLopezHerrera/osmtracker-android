@@ -498,12 +498,10 @@ public abstract class ExportTrackTask extends AsyncTask<Void, Long, Boolean> {
 				out.append("\t\t" + "<sat>" + c.getInt(c.getColumnIndex(TrackContentProvider.Schema.COL_NBSATELLITES)) + "</sat>" + "\n");
 			}
 
-			int trackIdColumnIndex = c.getColumnIndex(TrackContentProvider.Schema.COL_TRACK_ID);
-			if (trackIdColumnIndex != -1 && !c.isNull(trackIdColumnIndex)) {
-				long trackID = c.getLong(trackIdColumnIndex);
-				int uuidColumnIndex = c.getColumnIndex(TrackContentProvider.Schema.COL_UUID);
-				String uuid = c.getString(uuidColumnIndex);
-				out.append(writeExtensions(trackID, uuid));
+			int idColumnIndex = c.getColumnIndex(TrackContentProvider.Schema.COL_ID);
+			if (idColumnIndex != -1 && !c.isNull(idColumnIndex)) {
+				int id = c.getInt(idColumnIndex);
+				out.append(writeExtensions(id));
 			}
 
 			if(fillHDOP && ! c.isNull(c.getColumnIndex(TrackContentProvider.Schema.COL_ACCURACY))) {
@@ -539,29 +537,33 @@ public abstract class ExportTrackTask extends AsyncTask<Void, Long, Boolean> {
 		}
 	}
 
-	private String writeExtensions(Long trackID, String uuid){
-		if (uuid == null || uuid.isEmpty())
-			return "";
+	private String writeExtensions(int waypointID){
 		StringBuilder buff = new StringBuilder();
 		ContentResolver cr = context.getContentResolver();
-		String selection = TrackContentProvider.Schema.COL_UUID_REFERENCE + " = ?";
-		String[] selectionArgs = new String[] { uuid };
+		String selection = TrackContentProvider.Schema.COL_WAYPOINT_REFERENCE + " = ?";
+		String[] selectionArgs = new String[] { String.valueOf(waypointID) };
 		Cursor cGroupedData = cr.query(
-				TrackContentProvider.groupedDataUri(trackID),
+				TrackContentProvider.CONTENT_URI_GROUPED_DATA,
 				null,
 				selection,
 				selectionArgs,
 				null
 		);
-		if (cGroupedData != null) {
-			if (cGroupedData.moveToFirst()) {
-				buff.append("\t\t<extensions>\n");
-				do {
-					String data = cGroupedData.getString(cGroupedData.getColumnIndex(TrackContentProvider.Schema.COL_NAME));
+		if (cGroupedData != null && cGroupedData.moveToFirst()) {
+			buff.append("\t\t<extensions>\n");
+			do {
+				String data = cGroupedData.getString(cGroupedData.getColumnIndex(TrackContentProvider.Schema.COL_NAME));
+				String link = cGroupedData.getString(cGroupedData.getColumnIndex(TrackContentProvider.Schema.COL_LINK));
+				if(link != null){
+					buff.append("\t\t\t" + "<link href=\"").append(URLEncoder.encode(link)).append("\">").append("\n");
+					buff.append("\t\t\t\t" + "<text>").append(link).append("</text>\n");
+					buff.append("\t\t\t\t" + "<type>").append(data).append("</type>\n");
+					buff.append("\t\t\t" + "</link>" + "\n");
+				}
+				else
 					buff.append("\t\t\t" + "<data>" + CDATA_START).append(data).append(CDATA_END).append("</data>").append("\n");
-				} while (cGroupedData.moveToNext());
-				buff.append("\t\t</extensions>\n");
-			}
+			} while (cGroupedData.moveToNext());
+			buff.append("\t\t</extensions>\n");
 			cGroupedData.close();
 		}
 		return buff.toString();

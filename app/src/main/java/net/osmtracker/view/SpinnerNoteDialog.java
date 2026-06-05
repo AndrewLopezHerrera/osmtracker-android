@@ -71,7 +71,7 @@ public class SpinnerNoteDialog extends AlertDialog {
                     String selectedText = tag + ": " + spinner.getSelectedItem().toString();
 
                     if (groupedDataManager.isRecordingGroupedData()){
-                        groupedDataManager.addGroupedData(getContext(), selectedText);
+                        groupedDataManager.addGroupedData(getContext(), selectedText, null);
                     }
 
                     if (saveAsWayPoint) {

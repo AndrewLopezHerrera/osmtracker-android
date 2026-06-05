@@ -470,7 +470,7 @@ public class TrackLogger extends Activity {
 		}
 		GroupedDataStatusLayout groupedDataLayout = findViewById(R.id.groupedDataStatus);
 		if (groupedDataLayout != null) {
-			groupedDataLayout.setEnable(enabled);
+			groupedDataLayout.setEnabled(enabled);
 		}
 	}
 
@@ -623,10 +623,13 @@ public class TrackLogger extends Activity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		Log.v(TAG, "Activity result: " + requestCode + ", resultCode=" + resultCode + ", Intent=" + data);
+		GroupedDataManager groupedDataManager = GroupedDataManager.getInstance();
 		switch (requestCode) {
 		case REQCODE_IMAGE_CAPTURE:
 			if (resultCode == RESULT_OK) {
-				if (currentPhotoFile != null && currentPhotoFile.exists()) {
+				if (groupedDataManager.isRecordingGroupedData() && currentPhotoFile != null && currentPhotoFile.exists())
+					groupedDataManager.addGroupedData(this, getResources().getString(R.string.wpt_stillimage), currentPhotoFile.getName());
+				else if(currentPhotoFile != null && currentPhotoFile.exists()) {
 					Intent intent = new Intent(OSMTracker.INTENT_TRACK_WP);
 					intent.putExtra(OSMTracker.INTENT_KEY_UUID, UUID.randomUUID().toString());
 					intent.putExtra(TrackContentProvider.Schema.COL_TRACK_ID, currentTrackId);
@@ -644,7 +647,12 @@ public class TrackLogger extends Activity {
 				// Get imagePath from Gallery Uri
 				String imagePath = getRealPathFromURI(data.getData());
 				File imageFile = new File(imagePath != null ? imagePath : "");
-				if (imageFile.exists()) {
+				if (groupedDataManager.isRecordingGroupedData() && currentPhotoFile != null && currentPhotoFile.exists()) {
+					File destFile = createImageFile();
+					Log.d(TAG, "Copying gallery file '" + imagePath + "' into '" + destFile.getAbsolutePath() + "'");
+					FileSystemUtils.copyFile(destFile.getParentFile(), new File(imagePath), destFile.getName());
+					groupedDataManager.addGroupedData(this, getResources().getString(R.string.wpt_stillimage), destFile.getName());
+				} else if (imageFile.exists()) {
 					// Copy the file from the gallery
 					File destFile = createImageFile();
 					Log.d(TAG, "Copying gallery file '" + imagePath + "' into '" + destFile.getAbsolutePath() + "'");

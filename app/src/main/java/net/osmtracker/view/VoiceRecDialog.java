@@ -20,6 +20,7 @@ import net.osmtracker.OSMTracker;
 import net.osmtracker.R;
 import net.osmtracker.db.DataHelper;
 import net.osmtracker.db.TrackContentProvider.Schema;
+import net.osmtracker.groupeddata.GroupedDataManager;
 
 import java.io.File;
 import java.util.Date;
@@ -89,6 +90,8 @@ public class VoiceRecDialog extends ProgressDialog implements OnInfoListener{
 	 * This is needed to check if a key was pressed before the dialog was shown 
 	 */
 	private long dialogStartTime = 0;
+
+	private GroupedDataManager groupedDataManager;
 	
 	public VoiceRecDialog(Context context, long trackId) {
 		super(context);
@@ -106,7 +109,8 @@ public class VoiceRecDialog extends ProgressDialog implements OnInfoListener{
 				mediaRecorder.stop();
 				VoiceRecDialog.this.dismiss();
 			}
-		});		
+		});
+		groupedDataManager = GroupedDataManager.getInstance();
 	}
 	
 	
@@ -143,7 +147,7 @@ public class VoiceRecDialog extends ProgressDialog implements OnInfoListener{
 		}
 		
 		Log.d(TAG,"onStart() called");
-		if(wayPointUuid == null){
+		if(wayPointUuid == null && !groupedDataManager.isRecordingGroupedData()){
 			Log.d(TAG,"onStart() no UUID set, generating a new UUID");
 			// there is no UUID set for the waypoint we're working on
 			// so we need to generate a UUID and track this point
@@ -210,15 +214,18 @@ public class VoiceRecDialog extends ProgressDialog implements OnInfoListener{
 							Toast.LENGTH_SHORT).show();
 	
 				}
-	
-				// Still update waypoint, could be useful even without
-				// the voice file.
-				Intent intent = new Intent(OSMTracker.INTENT_UPDATE_WP);
-				intent.putExtra(Schema.COL_TRACK_ID, wayPointTrackId);
-				intent.putExtra(OSMTracker.INTENT_KEY_UUID, wayPointUuid);
-				intent.putExtra(OSMTracker.INTENT_KEY_LINK, audioFile.getName());
-				intent.setPackage(getContext().getPackageName());
-				context.sendBroadcast(intent);
+				if(groupedDataManager.isRecordingGroupedData())
+					groupedDataManager.addGroupedData(context, "audio", audioFile.getName());
+				else {
+					// Still update waypoint, could be useful even without
+					// the voice file.
+					Intent intent = new Intent(OSMTracker.INTENT_UPDATE_WP);
+					intent.putExtra(Schema.COL_TRACK_ID, wayPointTrackId);
+					intent.putExtra(OSMTracker.INTENT_KEY_UUID, wayPointUuid);
+					intent.putExtra(OSMTracker.INTENT_KEY_LINK, audioFile.getName());
+					intent.setPackage(getContext().getPackageName());
+					context.sendBroadcast(intent);
+				}
 			} else {
 				Log.w(TAG,"onStart() no suitable audioFile could be created");
 				// The audio file could not be created on the file system

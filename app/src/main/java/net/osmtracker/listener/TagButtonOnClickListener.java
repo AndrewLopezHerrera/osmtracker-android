@@ -39,7 +39,7 @@ public class TagButtonOnClickListener implements OnClickListener {
 		Button button = (Button) view;
 		String label = button.getText().toString().replaceAll("\n", " ");
 		if(GroupedData.isRecordingGroupedData()){
-			GroupedData.addGroupedData(view.getContext(), label);
+			GroupedData.addGroupedData(view.getContext(), label, null);
 		}
 		else{
 			// Send an intent to inform service to track the waypoint.

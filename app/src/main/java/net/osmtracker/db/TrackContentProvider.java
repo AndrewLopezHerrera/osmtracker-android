@@ -127,7 +127,8 @@ public class TrackContentProvider extends ContentProvider {
 		uriMatcher.addURI(AUTHORITY, Schema.TBL_TRACKPOINT + "/#", Schema.URI_CODE_TRACKPOINT_ID);
 		uriMatcher.addURI(AUTHORITY, Schema.TBL_NOTE + "/#", Schema.URI_CODE_NOTE_ID);
 		uriMatcher.addURI(AUTHORITY, Schema.TBL_NOTE + "/uuid/*", Schema.URI_CODE_NOTE_UUID);
-		uriMatcher.addURI(AUTHORITY, "track/#/" + Schema.TBL_GROUPED_DATA + "s", Schema.URI_CODE_GROUPED_DATAS);
+		uriMatcher.addURI(AUTHORITY, Schema.TBL_GROUPED_DATA, Schema.URI_CODE_GROUPED_DATA_ALL);
+		uriMatcher.addURI(AUTHORITY, Schema.TBL_WAYPOINT, Schema.URI_CODE_WAYPOINT_ALL);
 	}
 	
 	/**
@@ -353,19 +354,17 @@ public class TrackContentProvider extends ContentProvider {
 				throw new IllegalArgumentException("values should provide " + Schema.COL_START_DATE);
 			}
 			break;
-		case Schema.URI_CODE_GROUPED_DATAS:
-			if (values.containsKey(Schema.COL_UUID_REFERENCE) && values.containsKey(Schema.COL_NAME)) {
-				String trackIdStr = uri.getPathSegments().get(1);
-				long trackId = Long.parseLong(trackIdStr);
-				values.put(Schema.COL_TRACK_ID, trackId);
+			case Schema.URI_CODE_GROUPED_DATA_ALL:
+			if (values.containsKey(Schema.COL_WAYPOINT_REFERENCE) && values.containsKey(Schema.COL_NAME)) {
 				long rowId = dbHelper.getWritableDatabase().insert(Schema.TBL_GROUPED_DATA, null, values);
 				if (rowId > 0) {
 					Uri groupedDataUri = ContentUris.withAppendedId(uri, rowId);
 					getContext().getContentResolver().notifyChange(groupedDataUri, null);
+					Log.d("Ingreso", "Se ha ingresado un nuevo dato agrupado");
 					return groupedDataUri;
 				}
 			} else {
-				throw new IllegalArgumentException("values should provide " + Schema.COL_UUID_REFERENCE + " and " + Schema.COL_NAME);
+				throw new IllegalArgumentException("values should provide " + Schema.COL_WAYPOINT_REFERENCE + " and " + Schema.COL_NAME);
 			}
 			break;
 		default:
@@ -513,9 +512,15 @@ public class TrackContentProvider extends ContentProvider {
 			selection = Schema.TBL_TRACKPOINT + "." + Schema.COL_ID + " = ?";
 			selectionArgs = new String[] {trackPointId};
 			break;
-		case Schema.URI_CODE_GROUPED_DATAS:
+		case Schema.URI_CODE_GROUPED_DATA_ALL:
 			qb.setTables(Schema.TBL_GROUPED_DATA);
-			qb.appendWhere(Schema.COL_TRACK_ID + " = " + uri.getPathSegments().get(1));
+			selection = selectionIn;
+			selectionArgs = selectionArgsIn;
+			break;
+		case Schema.URI_CODE_WAYPOINT_ALL:
+			qb.setTables(Schema.TBL_WAYPOINT);
+			selection = selectionIn;
+			selectionArgs = selectionArgsIn;
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI: " + uri);
@@ -605,7 +610,7 @@ public class TrackContentProvider extends ContentProvider {
 		public static final String COL_ID = "_id";
 		public static final String COL_TRACK_ID = "track_id";
 		public static final String COL_UUID = "uuid";
-		public static final String COL_UUID_REFERENCE = "uuid_reference";
+		public static final String COL_WAYPOINT_REFERENCE = "waypoint_reference";
 		public static final String COL_LONGITUDE = "longitude";
 		public static final String COL_LATITUDE = "latitude";
 		public static final String COL_SPEED = "speed";
@@ -649,7 +654,8 @@ public class TrackContentProvider extends ContentProvider {
 		public static final int URI_CODE_TRACK_NOTES = 13;
 		public static final int URI_CODE_NOTE_ID = 14;
 		public static final int URI_CODE_NOTE_UUID = 15;
-		public static final int URI_CODE_GROUPED_DATAS = 16;
+		public static final int URI_CODE_GROUPED_DATA_ALL = 16;
+		public static final int URI_CODE_WAYPOINT_ALL = 17;
 
 		public static final int VAL_TRACK_ACTIVE = 1;
 		public static final int VAL_TRACK_INACTIVE = 0;
