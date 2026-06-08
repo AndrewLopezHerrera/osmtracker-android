@@ -1,30 +1,26 @@
 package net.osmtracker.listener;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.view.View;
 import android.widget.Toast;
 
 import net.osmtracker.R;
 import net.osmtracker.groupeddata.GroupedDataManager;
-import net.osmtracker.view.SetNameGroupDataDialog;
 
-public class SetNameGroupedDataOnClickListener implements View.OnClickListener {
+public class UpdateCoordinatesGroupedDataOnClickListener implements View.OnClickListener {
     Context context;
-    SetNameGroupDataDialog dialog;
     GroupedDataManager groupedDataManager;
-    public SetNameGroupedDataOnClickListener(Context context){
+    public UpdateCoordinatesGroupedDataOnClickListener(Context context){
         this.context = context;
-        this.dialog = new SetNameGroupDataDialog(context);
         this.groupedDataManager = GroupedDataManager.getInstance();
     }
-
     @Override
     public void onClick(View view) {
         if(!groupedDataManager.isRecordingGroupedData()){
             Toast.makeText(context, context.getResources().getString(R.string.message_data_grouping_disabled), Toast.LENGTH_SHORT).show();
             return;
         }
-        dialog.show();
+        groupedDataManager.updateCoordinateGroupedData(context);
+        Toast.makeText(context, context.getResources().getString(R.string.message_group_coordinates_updated), Toast.LENGTH_SHORT).show();
     }
 }

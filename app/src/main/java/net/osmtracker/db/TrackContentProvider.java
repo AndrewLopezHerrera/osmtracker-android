@@ -633,6 +633,7 @@ public class TrackContentProvider extends ContentProvider {
 		public static final String COL_COMPASS_ACCURACY = "compass_accuracy";
 		public static final String COL_ATMOSPHERIC_PRESSURE = "atmospheric_pressure";
 		public static final String COL_SEG_ID = "segment_id";
+		public static final String COL_IS_GROUPED = "is_grouped";
 
 		// virtual colums that are used in some sqls but dont exist in database
 		public static final String COL_TRACKPOINT_COUNT = "tp_count";

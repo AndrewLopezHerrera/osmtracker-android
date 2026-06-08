@@ -24,6 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Data helper for dialoging with content resolver and filesystem.
@@ -209,11 +210,11 @@ public class DataHelper {
 	 * 			  accuracy of the compass reading (as SensorManager.SENSOR_STATUS_ACCURACY*),
 	 * 			  ignored if azimuth is invalid.
 	 */
-	public void wayPoint(long trackId, Location location, String name, String link, String uuid, float azimuth, int accuracy, float pressure) {
+	public void wayPoint(long trackId, Location location, String name, String link, String uuid, float azimuth, int accuracy, float pressure, Boolean isGrouped) {
 		Log.d(TAG, "Tracking waypoint '" + name + "', track=" + trackId + ", uuid=" + uuid
 				+ ", nbSatellites=" + location.getExtras().getInt("satellites")
 				+ ", link='"+ link + "', location=" + location + ", azimuth=" + azimuth
-				+ ", accuracy=" + accuracy);
+				+ ", accuracy=" + accuracy + ", is grouped:" + isGrouped.toString());
 
 		// location should not be null, but sometime is.
 		// TODO investigate this issue.
@@ -238,6 +239,7 @@ public class DataHelper {
 				// Rename file to match location timestamp
 				values.put(TrackContentProvider.Schema.COL_LINK, renameFile(trackId, link, FILENAME_FORMATTER.format(location.getTime())));
 			}
+            values.put(TrackContentProvider.Schema.COL_IS_GROUPED, Objects.requireNonNullElse(isGrouped, false));
 			
 			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 			if (prefs.getBoolean(OSMTracker.Preferences.KEY_GPS_IGNORE_CLOCK, OSMTracker.Preferences.VAL_GPS_IGNORE_CLOCK)) {

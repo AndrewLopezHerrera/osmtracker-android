@@ -498,33 +498,39 @@ public abstract class ExportTrackTask extends AsyncTask<Void, Long, Boolean> {
 				out.append("\t\t" + "<sat>" + c.getInt(c.getColumnIndex(TrackContentProvider.Schema.COL_NBSATELLITES)) + "</sat>" + "\n");
 			}
 
-			int idColumnIndex = c.getColumnIndex(TrackContentProvider.Schema.COL_ID);
-			if (idColumnIndex != -1 && !c.isNull(idColumnIndex)) {
-				int id = c.getInt(idColumnIndex);
-				out.append(writeExtensions(id));
-			}
-
 			if(fillHDOP && ! c.isNull(c.getColumnIndex(TrackContentProvider.Schema.COL_ACCURACY))) {
 				out.append("\t\t" + "<hdop>" + (c.getDouble(c.getColumnIndex(TrackContentProvider.Schema.COL_ACCURACY)) / OSMTracker.HDOP_APPROXIMATION_FACTOR) + "</hdop>" + "\n");
 			}
 
 			String buff = "";
 
+			int idColumnIndex = c.getColumnIndex(TrackContentProvider.Schema.COL_ID);
+			int dataGroupedIndex = c.getColumnIndex(TrackContentProvider.Schema.COL_IS_GROUPED);
+			if (idColumnIndex != -1 && !c.isNull(idColumnIndex) && dataGroupedIndex != -1 && !c.isNull(dataGroupedIndex)) {
+				int isGrouped = c.getInt(dataGroupedIndex);
+				if(isGrouped != 0) {
+					int id = c.getInt(idColumnIndex);
+					StringBuilder[] values = writeGroupedData(id);
+					out.append(values[0]);
+					buff += values[1];
+				}
+			}
+
 			if(OSMTracker.Preferences.VAL_OUTPUT_COMPASS_EXTENSION.equals(compass) && !c.isNull(c.getColumnIndex(TrackContentProvider.Schema.COL_COMPASS))) {
-				buff += "\t\t\t\t\t" + "<compass>" + c.getDouble(c.getColumnIndex(TrackContentProvider.Schema.COL_COMPASS)) + "</compass>" + "\n";
-				buff += "\t\t\t\t\t" + "<compass_accuracy>" + c.getDouble(c.getColumnIndex(TrackContentProvider.Schema.COL_COMPASS_ACCURACY)) + "</compass_accuracy>" + "\n";
+				buff += "\t\t\t" + "<compass>" + c.getDouble(c.getColumnIndex(TrackContentProvider.Schema.COL_COMPASS)) + "</compass>" + "\n";
+				buff += "\t\t\t" + "<compass_accuracy>" + c.getDouble(c.getColumnIndex(TrackContentProvider.Schema.COL_COMPASS_ACCURACY)) + "</compass_accuracy>" + "\n";
 			}
 
 			if (! c.isNull(c.getColumnIndex(TrackContentProvider.Schema.COL_ATMOSPHERIC_PRESSURE))) { //Checking if the database contains atmospheric_pressure data
 				double pressure = c.getDouble(c.getColumnIndex(TrackContentProvider.Schema.COL_ATMOSPHERIC_PRESSURE));
 				String pressure_formatted = String.format("%.1f", pressure);
-				buff += "\t\t\t\t\t" + "<baro>" + pressure_formatted + "</baro>" + "\n";
+				buff += "\t\t\t" + "<baro>" + pressure_formatted + "</baro>" + "\n";
 			}
 
 			if(! buff.equals("")) {
-				out.append("\t\t\t\t" + "<extensions>\n");
+				out.append("\t\t" + "<extensions>\n");
 				out.append(buff);
-				out.append("\t\t\t\t" + "</extensions>\n");
+				out.append("\t\t" + "</extensions>\n");
 			}
 
 			out.append("\t" + "</wpt>" + "\n");
@@ -537,8 +543,7 @@ public abstract class ExportTrackTask extends AsyncTask<Void, Long, Boolean> {
 		}
 	}
 
-	private String writeExtensions(int waypointID){
-		StringBuilder buff = new StringBuilder();
+	private StringBuilder[] writeGroupedData(int waypointID){
 		ContentResolver cr = context.getContentResolver();
 		String selection = TrackContentProvider.Schema.COL_WAYPOINT_REFERENCE + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf(waypointID) };
@@ -549,24 +554,24 @@ public abstract class ExportTrackTask extends AsyncTask<Void, Long, Boolean> {
 				selectionArgs,
 				null
 		);
+		StringBuilder buffExtension = new StringBuilder();
+		StringBuilder buffLink = new StringBuilder();
 		if (cGroupedData != null && cGroupedData.moveToFirst()) {
-			buff.append("\t\t<extensions>\n");
 			do {
 				String data = cGroupedData.getString(cGroupedData.getColumnIndex(TrackContentProvider.Schema.COL_NAME));
 				String link = cGroupedData.getString(cGroupedData.getColumnIndex(TrackContentProvider.Schema.COL_LINK));
 				if(link != null){
-					buff.append("\t\t\t" + "<link href=\"").append(URLEncoder.encode(link)).append("\">").append("\n");
-					buff.append("\t\t\t\t" + "<text>").append(link).append("</text>\n");
-					buff.append("\t\t\t\t" + "<type>").append(data).append("</type>\n");
-					buff.append("\t\t\t" + "</link>" + "\n");
+					buffLink.append("\t\t" + "<link href=\"").append(URLEncoder.encode(link)).append("\">").append("\n");
+					buffLink.append("\t\t\t" + "<text>").append(link).append("</text>\n");
+					buffLink.append("\t\t\t" + "<type>").append(data).append("</type>\n");
+					buffLink.append("\t\t" + "</link>" + "\n");
 				}
 				else
-					buff.append("\t\t\t" + "<data>" + CDATA_START).append(data).append(CDATA_END).append("</data>").append("\n");
+					buffExtension.append("\t\t\t" + "<data>" + CDATA_START).append(data).append(CDATA_END).append("</data>").append("\n");
 			} while (cGroupedData.moveToNext());
-			buff.append("\t\t</extensions>\n");
 			cGroupedData.close();
 		}
-		return buff.toString();
+		return new StringBuilder[] {buffLink, buffExtension};
 	}
 
 	/**

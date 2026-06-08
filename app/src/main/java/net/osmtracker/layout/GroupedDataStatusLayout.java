@@ -17,6 +17,7 @@ import net.osmtracker.OSMTracker;
 import net.osmtracker.R;
 import net.osmtracker.groupeddata.GroupedDataManager;
 import net.osmtracker.listener.SetNameGroupedDataOnClickListener;
+import net.osmtracker.listener.UpdateCoordinatesGroupedDataOnClickListener;
 
 public class GroupedDataStatusLayout extends LinearLayout {
     private GroupedDataManager groupedDataManager;
@@ -60,6 +61,7 @@ public class GroupedDataStatusLayout extends LinearLayout {
 
         switchGroupedData = findViewById(R.id.grouped_data_switch);
         switchGroupedData.setChecked(false);
+        switchGroupedData.setText(context.getResources().getString(R.string.grouped_data_title));
 
         imageGroupedData = findViewById(R.id.grouped_data_image);
         imageGroupedData.setImageResource(R.drawable.grouped_data_diactivated);
@@ -68,10 +70,14 @@ public class GroupedDataStatusLayout extends LinearLayout {
         amountElements = findViewById(R.id.amount_grouped_data);
 
         buttonSetName = findViewById(R.id.button_set_name_group_data);
-        SetNameGroupedDataOnClickListener listener = new SetNameGroupedDataOnClickListener(context);
-        buttonSetName.setOnClickListener(listener);
+        buttonSetName.setText(context.getResources().getString(R.string.update_group_name));
+        SetNameGroupedDataOnClickListener listenerName = new SetNameGroupedDataOnClickListener(context);
+        buttonSetName.setOnClickListener(listenerName);
 
         buttonUpdateCoordinates = findViewById(R.id.button_update_coordinates);
+        buttonUpdateCoordinates.setText(context.getResources().getString(R.string.update_group_coordinates));
+        UpdateCoordinatesGroupedDataOnClickListener listenerCoordinates = new UpdateCoordinatesGroupedDataOnClickListener(context);
+        buttonUpdateCoordinates.setOnClickListener(listenerCoordinates);
 
         updateUiTexts();
         setFunctionSwitch();
@@ -95,12 +101,12 @@ public class GroupedDataStatusLayout extends LinearLayout {
             if(isChecked){
                 groupedDataManager.activateRecordGroupedData(getContext());
                 imageGroupedData.setImageResource(R.drawable.grouped_data_activated);
-                Toast.makeText(getContext(), "Data grouping activated", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getContext().getResources().getString(R.string.data_grouping_enabled), Toast.LENGTH_SHORT).show();
             }
             else{
                 groupedDataManager.deactivateRecordGroupedData();
                 imageGroupedData.setImageResource(R.drawable.grouped_data_diactivated);
-                Toast.makeText(getContext(), "Data grouping deactivated", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getContext().getResources().getString(R.string.data_grouping_disabled), Toast.LENGTH_SHORT).show();
             }
             updateUiTexts();
         });
@@ -128,12 +134,12 @@ public class GroupedDataStatusLayout extends LinearLayout {
 
     private String createName(){
         if (!groupedDataManager.isRecordingGroupedData()) {
-            return groupedDataManager.getName();
+            return getContext().getResources().getString(R.string.group_not_created);
         }
-        return "Grupo #" + groupedDataManager.getIDGroupData() + " - \"" + groupedDataManager.getName() + "\"";
+        return getContext().getResources().getString(R.string.group) + " #" + groupedDataManager.getIDGroupData() + " - \"" + groupedDataManager.getName() + "\"";
     }
 
     private String createAmountElements(){
-        return "Cantidad datos: " + groupedDataManager.getAmountElements();
+        return getContext().getResources().getString(R.string.grouped_data_count) + ": " + groupedDataManager.getAmountElements();
     }
 }

@@ -70,7 +70,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		+ TrackContentProvider.Schema.COL_NBSATELLITES + " integer not null,"
 		+ TrackContentProvider.Schema.COL_COMPASS + " double null,"
 		+ TrackContentProvider.Schema.COL_COMPASS_ACCURACY + " integer null,"
-		+ TrackContentProvider.Schema.COL_ATMOSPHERIC_PRESSURE + " double null"	+ ")";
+		+ TrackContentProvider.Schema.COL_ATMOSPHERIC_PRESSURE + " double null,"
+		+ TrackContentProvider.Schema.COL_IS_GROUPED + " boolean not null" + ")";
 
 	/**
 	 * SQL for creating index WAYPOINT_idx (track id)

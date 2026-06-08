@@ -131,8 +131,8 @@ public class GPSLogger extends Service implements LocationListener {
 							String uuid = extras.getString(OSMTracker.INTENT_KEY_UUID);
 							String name = extras.getString(OSMTracker.INTENT_KEY_NAME);
 							String link = extras.getString(OSMTracker.INTENT_KEY_LINK);
-
-							dataHelper.wayPoint(trackId, lastLocation, name, link, uuid, sensorListener.getAzimuth(), sensorListener.getAccuracy(), pressureListener.getPressure());
+							Boolean isGrouped = extras.getBoolean(OSMTracker.INTENT_KEY_IS_GROUPED);
+							dataHelper.wayPoint(trackId, lastLocation, name, link, uuid, sensorListener.getAzimuth(), sensorListener.getAccuracy(), pressureListener.getPressure(), isGrouped);
 
 							// If there is a waypoint in the track, there should also be a trackpoint
 							dataHelper.track(currentTrackId, lastLocation, sensorListener.getAzimuth(), sensorListener.getAccuracy(), pressureListener.getPressure(), currentSegmentId);
@@ -201,9 +201,9 @@ public class GPSLogger extends Service implements LocationListener {
 			} else if (OSMTracker.INTENT_ADD_GROUPED_DATA.equals(intent.getAction())){
 				Bundle extras = intent.getExtras();
 				if (extras != null) {
-					String uuid = extras.getString(TrackContentProvider.Schema.COL_UUID);
-					String name = extras.getString(TrackContentProvider.Schema.COL_NAME);
-					String link = extras.getString(TrackContentProvider.Schema.COL_LINK);
+					String uuid = extras.getString(OSMTracker.INTENT_KEY_UUID);
+					String name = extras.getString(OSMTracker.INTENT_KEY_NAME);
+					String link = extras.getString(OSMTracker.INTENT_KEY_LINK);
 					dataHelper.addGroupedData(uuid, name, link);
 				}
 			} else if (OSMTracker.INTENT_UPDATE_COORDINATES_WAYPOINT.equals(intent.getAction())){
@@ -211,7 +211,7 @@ public class GPSLogger extends Service implements LocationListener {
 				if (extras != null) {
 					lastLocation = lmgr.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 					long trackId = extras.getLong(TrackContentProvider.Schema.COL_TRACK_ID);
-					String uuid = extras.getString(TrackContentProvider.Schema.COL_UUID);
+					String uuid = extras.getString(OSMTracker.INTENT_KEY_UUID);
 					dataHelper.updateCoordinatesWaypoint(trackId, uuid, lastLocation);
 				}
 			}

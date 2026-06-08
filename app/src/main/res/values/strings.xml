@@ -120,6 +120,22 @@
   <string name="delete_note_confirm_bt_cancel">Cancel</string>
   <string name="notelist">Note list</string>
   <string name="osm_note_bt_upload">Upload as OSM note</string>
+  <!-- Grouped data -->
+  <string name="grouped_data_title">Group data into a single point</string>
+  <string name="group_not_created">Group not created</string>
+  <string name="message_data_grouping_disabled">Data grouping is disabled</string>
+  <string name="grouped_data_count">Data count</string>
+  <string name="update_group_coordinates">Update coordinates</string>
+  <string name="update_group_name">Update name</string>
+  <string name="data_grouping_enabled">Data grouping enabled</string>
+  <string name="data_grouping_disabled">Data grouping disabled</string>
+  <string name="group_name_placeholder">Group name</string>
+  <string name="change_group_name_dialog_title">Change group name</string>
+  <string name="message_group_name_changed">Group name changed</string>
+  <string name="message_group_name_not_changed">Action cancelled</string>
+  <string name="message_group_coordinates_updated">Group coordinates updated</string>
+  <string name="group">Group</string>
+  <string name="id_data_group">ID_Data_Group</string>
   <!--Menu-->
   <string name="menu_settings">Settings</string>
   <string name="menu_waypointlist">Waypoints</string>

@@ -173,6 +173,7 @@ public class OSMTracker {
 	 * Key for extra data "uuid" in Intent
 	 */
 	public final static String INTENT_KEY_UUID = "uuid";
+	public final static String INTENT_KEY_IS_GROUPED = "is_grouped";
 	
 	/**
 	 * Approximation factor for calculating Horizontal Dilution of Precision
